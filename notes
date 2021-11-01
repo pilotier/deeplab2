@@ -1,0 +1,5 @@
+cd /usr/lib/python3/dist-packages/tensorflow/include/third_party
+mkdir gpus/cuda
+sudo ln -s /usr/include /usr/lib/python3/dist-packages/tensorflow/include/third_party/gpus/cuda
+
+pip install numpy==1.19.5
