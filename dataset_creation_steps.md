@@ -102,7 +102,7 @@ make
 cd ${YOUR_PROJECT_NAME}
 ```
 
-### **Compilation**
+#### **Compilation**
 
 The following instructions are running from `${YOUR_PROJECT_NAME}` directory:
 
@@ -110,7 +110,7 @@ The following instructions are running from `${YOUR_PROJECT_NAME}` directory:
 cd ${YOUR_PROJECT_NAME}
 ```
 
-### Add Libraries to PYTHONPATH
+#### Add Libraries to PYTHONPATH
 
 When running locally, `${YOUR_PROJECT_NAME}` directory should be appended to
 PYTHONPATH. This can be done by running the following command:
@@ -133,7 +133,7 @@ here is an example:
 export PYTHONPATH=$PYTHONPATH:`pwd`:`pwd`/models:`pwd`/cocoapi/PythonAPI
 ```
 
-### Compile Protocol Buffers
+#### Compile Protocol Buffers
 
 In DeepLab2, we define
 [protocol buffers](https://developers.google.com/protocol-buffers) to configure
@@ -149,7 +149,7 @@ ${PATH_TO_PROTOC} deeplab2/*.proto --python_out=.
 protoc deeplab2/*.proto --python_out=.
 ```
 
-### (Optional) Compile Custom Ops
+#### (Optional) Compile Custom Ops
 
 We implemented efficient merging operation to merge semantic and instance maps
 for fast inference. You can follow the guide below to compile the provided
@@ -190,7 +190,7 @@ pure TF functions instead. See
 `deeplab2/configs/cityscaspes/panoptic_deeplab/resnet50_os32_merge_with_pure_tf_func.textproto`
 as an example.
 
-### Test the Configuration
+#### Test the Configuration
 
 You can test if you have successfully installed and configured DeepLab2 by
 running the following commands (requires compilation of custom ops):
@@ -203,7 +203,7 @@ python deeplab2/model/deeplab_test.py
 python deeplab2/trainer/evaluator_test.py
 ```
 
-### Quick All-in-One Script for Compilation (Linux Only)
+#### Quick All-in-One Script for Compilation (Linux Only)
 
 We also provide a shell script to help you quickly compile and test everything
 mentioned above for Linux users:
@@ -231,7 +231,7 @@ Following this doc
 [DATASET.md](https://github.com/joe-siyuan-qiao/vps/blob/master/docs/DATASET.md)
 to prepare Cityscapes-VPS.
 
-### Download datasets
+#### Download datasets
 a. Symlink the `$DATA_ROOT` dataset to `$MMDETECTION/data` folder. 
 
 b. Download [Cityscapes-VPS here](https://www.dropbox.com/s/ecem4kq0fdkver4/cityscapes-vps-dataset-1.0.zip?dl=0) in `$CITY_VPS = data/cityscapes_vps/` folder.
@@ -239,7 +239,7 @@ b. Download [Cityscapes-VPS here](https://www.dropbox.com/s/ecem4kq0fdkver4/city
 c. Download `leftImg8bit_sequence.zip` and `gtFine.zip` from the [Cityscapes-dataset webpage](https://cityscapes-dataset.com/) in `data` folder. You need only `val/` of these datasets to construct Cityscapes-VPS.
 
 
-### Merge Cityscapes into Cityscapes-VPS
+#### Merge Cityscapes into Cityscapes-VPS
 We have 2400/600/600 frames for train/val/test splits. Fetch cityscapes sequence images into `$CITY_VPS/SPLIT/img` and `$CITY_VPS/SPLIT/img_all`, and merge two datasets labels at `$CITY_VPS/SPLIT/cls` and `$CITY_VPS/SPLIT/inst`.
 ```
 bash ./prepare_data/merge_datasets.sh \
@@ -254,7 +254,7 @@ python prepare_data/merge_datasets.py \
     --dst_dir $CITY_VPS --mode SPLIT
 ```
 
-### Create video-panoptic labels
+#### Create video-panoptic labels
 Create `labelmap/`, `panoptic_inst/`, and `panoptic_video/` in `$CITY_VPS/SPLIT/` by running following commands.
 ```
 bash ./prepare_data/create_panoptic_labels.sh \
@@ -266,7 +266,7 @@ python prepare_data/create_panoptic_labels.py --root_dir $CITY_VPS --mode SPLIT
 python prepare_data/create_panoptic_video_labels.py --root_dir $CITY_VPS --mode SPLIT
 ```
 
-### Directory Structure
+#### Directory Structure
 Necessary data for training, testing, and evaluation are as follows. You may delete other data for disk usage.
 ```
 mmdetection
@@ -306,3 +306,47 @@ python copy_video_sequence.py --split val
 ```
 After the above procedures, Cityscapes-DVPS is ready and located in the folder
 `video_sequence`.
+
+## Step 3:
+
+### Converting video_sequence folder to tfrecord
+
+```bash
+python deeplab2/data/build_dvps_data.py \
+     --dvps_root=${DVPS_ROOT} \
+     --output_dir=${OUTPUT_DIR}
+```
+
+Here, dvps_root=/path/to/video_sequence
+
+Check the size of tfrecord for successful conversion
+
+### Download the pretrained weights
+
+### Edit config file
+
+Edit experiment_name, initial_checkpoint, train and val file_pattern fields with the paths in this  
+[config file](https://github.com/google-research/deeplab2/blob/main/configs/cityscapes_dvps/vip_deeplab/resnet50_beta_os32.textproto)
+
+############### PLEASE READ THIS BEFORE USING THIS CONFIG ###############
+# Before using this config, you need to update the following fields:
+# - experiment_name: Use a unique experiment name for each experiment.
+# - initial_checkpoint: Update the path to the initial checkpoint.
+# - train_dataset_options.file_pattern: Update the path to the
+#   training set. e.g., your_dataset/train*.tfrecord
+# - eval_dataset_options.file_pattern: Update the path to the
+#   validation set, e.g., your_dataset/eval*.tfrecord
+# - (optional) set merge_semantic_and_instance_with_tf_op: true, if you
+#   could successfully compile the provided efficient merging operation
+#   under the folder `tensorflow_ops`.
+#########################################################################
+
+### Run train/eval in deeplab2
+
+```bash
+python trainer/train.py \
+    --config_file=${CONFIG_FILE} \
+    --mode={train | eval | train_and_eval | continuous_eval} \
+    --model_dir=${BASE_MODEL_DIRECTORY} \
+    --num_gpus=${NUM_GPUS}
+```
