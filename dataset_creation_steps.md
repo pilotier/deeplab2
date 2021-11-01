@@ -329,16 +329,16 @@ Edit experiment_name, initial_checkpoint, train and val file_pattern fields with
 [config file](https://github.com/google-research/deeplab2/blob/main/configs/cityscapes_dvps/vip_deeplab/resnet50_beta_os32.textproto)
 
 ############### PLEASE READ THIS BEFORE USING THIS CONFIG ###############
-# Before using this config, you need to update the following fields:
-# - experiment_name: Use a unique experiment name for each experiment.
-# - initial_checkpoint: Update the path to the initial checkpoint.
-# - train_dataset_options.file_pattern: Update the path to the
-#   training set. e.g., your_dataset/train*.tfrecord
-# - eval_dataset_options.file_pattern: Update the path to the
-#   validation set, e.g., your_dataset/eval*.tfrecord
-# - (optional) set merge_semantic_and_instance_with_tf_op: true, if you
-#   could successfully compile the provided efficient merging operation
-#   under the folder `tensorflow_ops`.
+ Before using this config, you need to update the following fields:
+ - experiment_name: Use a unique experiment name for each experiment.
+ - initial_checkpoint: Update the path to the initial checkpoint.
+ - train_dataset_options.file_pattern: Update the path to the
+   training set. e.g., your_dataset/train*.tfrecord
+ - eval_dataset_options.file_pattern: Update the path to the
+   validation set, e.g., your_dataset/eval*.tfrecord
+ - (optional) set merge_semantic_and_instance_with_tf_op: true, if you
+   could successfully compile the provided efficient merging operation
+   under the folder `tensorflow_ops`.
 #########################################################################
 
 ### Run train/eval in deeplab2
