@@ -1,3 +1,6 @@
 [submodule "projects"]
 	path = ViP-DeepLab
 	url = https://github.com/joe-siyuan-qiao/ViP-DeepLab
+[submodule "vps"]
+	path = vps
+	url = https://github.com/joe-siyuan-qiao/vps
